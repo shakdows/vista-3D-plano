@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CASA ALEX · Render arquitectónico</title>
+<style>
+  :root{color-scheme:dark;--bg:#0d1117;--glass:rgba(12,17,23,.72);--line:rgba(255,255,255,.14);--tx:#f5f7fa;--mut:#aab4c0;--acc:#d7b45b}
+  *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--tx)}
+  #app,#viewer{position:relative;width:100%;height:100%}canvas{display:block;width:100%;height:100%}
+  .glass{background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(16px);box-shadow:0 14px 45px rgba(0,0,0,.26)}
+  #head{position:absolute;z-index:4;left:18px;top:18px;max-width:min(540px,calc(100% - 36px));padding:14px 16px;border-radius:14px}
+  #head h1{font-size:14px;letter-spacing:.13em;margin:0;text-transform:uppercase}#head h1 b{color:var(--acc)}
+  #head p{margin:6px 0 0;font-size:12px;line-height:1.5;color:var(--mut)}
+  #tools{position:absolute;z-index:4;right:18px;top:18px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end;padding:7px;border-radius:13px;max-width:calc(100% - 36px)}
+  #footer{position:absolute;z-index:4;left:18px;bottom:18px;padding:10px 13px;border-radius:12px;font-size:11px;color:var(--mut)}
+  button{appearance:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:var(--tx);border-radius:9px;padding:8px 11px;font-weight:700;font-size:11px;cursor:pointer;transition:.16s}
+  button:hover{background:rgba(255,255,255,.15)}button.on{background:var(--acc);border-color:var(--acc);color:#18140c}
+  #loading{position:absolute;inset:0;display:grid;place-items:center;z-index:8;background:#0d1117;font-size:13px;letter-spacing:.08em;color:#ccd4dc}
+  @media(max-width:760px){#head{right:18px;max-width:none}#tools{top:auto;bottom:18px;left:18px;right:18px;justify-content:center}#footer{display:none}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="viewer">
+    <div id="loading">PREPARANDO RENDER ARQUITECTÓNICO…</div>
+    <section id="head" class="glass">
+      <h1>CASA <b>ALEX</b> · Referencia realista</h1>
+      <p>La huella en planta proviene del CAD. Fachadas, alturas, acabados, vegetación y mobiliario son una propuesta visual de referencia.</p>
+    </section>
+    <nav id="tools" class="glass">
+      <button data-view="hero" class="on">Perspectiva</button>
+      <button data-view="street">Calle</button>
+      <button data-view="aerial">Aérea</button>
+      <button id="golden">Hora dorada</button>
+      <button id="capture">Guardar PNG</button>
+    </nav>
+    <div id="footer" class="glass">Arrastra para orbitar · rueda para zoom · render físicamente plausible en tiempo real</div>
+  </div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.166.1/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const host = document.getElementById('viewer');
+const loading = document.getElementById('loading');
+const MODEL = await fetch('./casa_alex_modelo_corregido.json').then(r=>{if(!r.ok)throw new Error('No se pudo cargar el modelo');return r.json()});
+
+const renderer = new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.08;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+host.prepend(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xc8d7e2);
+scene.fog = new THREE.FogExp2(0xc8d7e2,.0065);
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(),.03).texture;
+
+const camera = new THREE.PerspectiveCamera(34,1,.1,450);
+const controls = new OrbitControls(camera,renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor=.055; controls.minDistance=8; controls.maxDistance=125; controls.maxPolarAngle=Math.PI*.49;
+
+const hemi = new THREE.HemisphereLight(0xe4f2ff,0x4f5849,1.05); scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff0d5,4.1); sun.castShadow=true; sun.shadow.mapSize.set(4096,4096); sun.shadow.bias=-.0002; sun.shadow.normalBias=.022;
+sun.shadow.camera.left=-42;sun.shadow.camera.right=42;sun.shadow.camera.top=46;sun.shadow.camera.bottom=-46;sun.shadow.camera.near=1;sun.shadow.camera.far=150;scene.add(sun,sun.target);
+
+function canvasTexture(size,paint,repeat=[1,1]){const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');paint(x,size);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);t.anisotropy=renderer.capabilities.getMaxAnisotropy();return t}
+function noise(x,n,alpha=.12){for(let i=0;i<n;i++){const v=Math.floor(110+Math.random()*110);x.fillStyle=`rgba(${v},${v},${v},${alpha*Math.random()})`;x.fillRect(Math.random()*512,Math.random()*512,1+Math.random()*5,1+Math.random()*5)}}
+const texConcrete=canvasTexture(512,(x,s)=>{x.fillStyle='#cbc6bc';x.fillRect(0,0,s,s);noise(x,600,.16);for(let y=0;y<s;y+=128){x.fillStyle='rgba(60,55,50,.08)';x.fillRect(0,y, s,2)}},[5,5]);
+const texWall=canvasTexture(512,(x,s)=>{x.fillStyle='#e7e1d6';x.fillRect(0,0,s,s);noise(x,450,.08)},[4,4]);
+const texAsphalt=canvasTexture(512,(x,s)=>{x.fillStyle='#35383b';x.fillRect(0,0,s,s);noise(x,1500,.2)},[11,11]);
+const texGrass=canvasTexture(512,(x,s)=>{x.fillStyle='#537846';x.fillRect(0,0,s,s);for(let i=0;i<3500;i++){const g=70+Math.floor(Math.random()*80);x.fillStyle=`rgba(35,${g},35,.35)`;x.fillRect(Math.random()*s,Math.random()*s,1,3)}},[13,13]);
+const texWood=canvasTexture(512,(x,s)=>{x.fillStyle='#7b5a3f';x.fillRect(0,0,s,s);for(let y=0;y<s;y+=18){x.fillStyle='rgba(35,18,8,.20)';x.fillRect(0,y,s,2);for(let i=0;i<5;i++){x.strokeStyle='rgba(40,20,10,.15)';x.beginPath();x.moveTo(0,y+Math.random()*18);x.bezierCurveTo(s*.3,y+Math.random()*18,s*.7,y+Math.random()*18,s,y+Math.random()*18);x.stroke()}}},[2,2]);
+
+const M={
+ ground:new THREE.MeshStandardMaterial({map:texGrass,roughness:1,color:0x78956b}),
+ grass:new THREE.MeshStandardMaterial({map:texGrass,roughness:1,color:0x6f965d}),
+ asphalt:new THREE.MeshStandardMaterial({map:texAsphalt,roughness:.92}),
+ concrete:new THREE.MeshStandardMaterial({map:texConcrete,roughness:.86}),
+ wall:new THREE.MeshStandardMaterial({map:texWall,roughness:.76,color:0xf1ede5}),
+ wallDark:new THREE.MeshStandardMaterial({map:texWall,roughness:.72,color:0xc7beb0}),
+ trim:new THREE.MeshStandardMaterial({color:0x292d31,roughness:.35,metalness:.48}),
+ roof:new THREE.MeshStandardMaterial({color:0x3c4247,roughness:.48,metalness:.28}),
+ glass:new THREE.MeshPhysicalMaterial({color:0x8cb1c5,roughness:.08,metalness:0,transmission:.52,thickness:.08,transparent:true,opacity:.72,envMapIntensity:1.5,side:THREE.DoubleSide}),
+ wood:new THREE.MeshStandardMaterial({map:texWood,color:0xb38a66,roughness:.62}),
+ line:new THREE.MeshStandardMaterial({color:0xf3f0e9,roughness:.72}),
+ steel:new THREE.MeshStandardMaterial({color:0x555d63,roughness:.36,metalness:.7}),
+ tire:new THREE.MeshStandardMaterial({color:0x111315,roughness:.95}),
+ carWhite:new THREE.MeshPhysicalMaterial({color:0xf2f2ee,roughness:.18,metalness:.58,clearcoat:1,clearcoatRoughness:.12}),
+ carDark:new THREE.MeshPhysicalMaterial({color:0x252b31,roughness:.2,metalness:.62,clearcoat:1,clearcoatRoughness:.14}),
+ carBronze:new THREE.MeshPhysicalMaterial({color:0x765f49,roughness:.22,metalness:.58,clearcoat:.9,clearcoatRoughness:.16}),
+ leaves:new THREE.MeshStandardMaterial({color:0x356d3d,roughness:.92}),trunk:new THREE.MeshStandardMaterial({color:0x6b5039,roughness:1}),
+ water:new THREE.MeshPhysicalMaterial({color:0x77929e,roughness:.16,metalness:.06,clearcoat:.8,clearcoatRoughness:.12})
+};
+
+const shapeOf=pts=>{const s=new THREE.Shape();pts.forEach((p,i)=>i?s.lineTo(p[0],p[1]):s.moveTo(p[0],p[1]));s.closePath();return s};
+function slab(pts,y,h,mat,bevel=false){const g=new THREE.ExtrudeGeometry(shapeOf(pts),{depth:h,bevelEnabled:bevel,bevelSize:bevel?.04:0,bevelThickness:bevel?.04:0,bevelSegments:2});g.rotateX(-Math.PI/2);g.computeVertexNormals();const m=new THREE.Mesh(g,mat);m.position.y=y;m.castShadow=true;m.receiveShadow=true;return m}
+function wall(a,b,y,h,t,mat){const dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);if(len<.05)return;const m=new THREE.Mesh(new THREE.BoxGeometry(len,h,t),mat);m.position.set((a[0]+b[0])/2,y+h/2,-(a[1]+b[1])/2);m.rotation.y=Math.atan2(dy,dx);m.castShadow=m.receiveShadow=true;return m}
+function centroid(p){return p.reduce((a,v)=>[a[0]+v[0]/p.length,a[1]+v[1]/p.length],[0,0])}
+function signedArea(p){let a=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i][0]*q[1]-q[0]*p[i][1]}return a/2}
+
+// Large landscape base and driveway area
+const base=new THREE.Mesh(new THREE.PlaneGeometry(220,220),M.ground);base.rotation.x=-Math.PI/2;base.position.y=-.05;base.receiveShadow=true;scene.add(base);
+const byId=Object.fromEntries(MODEL.elements.map(e=>[e.id,e]));
+const allPts=MODEL.elements.flatMap(e=>e.polygon);const xs=allPts.map(p=>p[0]),ys=allPts.map(p=>p[1]);
+const site=new THREE.Mesh(new THREE.PlaneGeometry(Math.max(...xs)-Math.min(...xs)+18,Math.max(...ys)-Math.min(...ys)+22),M.concrete);site.rotation.x=-Math.PI/2;site.position.set((Math.max(...xs)+Math.min(...xs))/2,-.018,-(Math.max(...ys)+Math.min(...ys))/2);site.receiveShadow=true;scene.add(site);
+
+// House mass with recessed glass ribbons and vertical fins
+function addFacade(poly,y0,y1){const cw=signedArea(poly)>0?1:-1;for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],dx=b[0]-a[0],dy=b[1]-a[1],len=Math.hypot(dx,dy);if(len<2.3)continue;const nx=dy/len*cw,ny=-dx/len*cw,mx=(a[0]+b[0])/2+nx*.065,my=(a[1]+b[1])/2+ny*.065;const gw=Math.max(1.1,len-1.45),gh=y1-y0;const glass=new THREE.Mesh(new THREE.PlaneGeometry(gw,gh),M.glass);glass.position.set(mx,(y0+y1)/2,-my);glass.rotation.y=Math.atan2(nx,-ny);glass.castShadow=false;scene.add(glass);for(const yy of [y0,y1]){const fr=new THREE.Mesh(new THREE.BoxGeometry(gw+.14,.10,.10),M.trim);fr.position.set(mx,yy,-my);fr.rotation.y=glass.rotation.y;fr.castShadow=true;scene.add(fr)}for(const k of [-.5,0,.5]){const fin=new THREE.Mesh(new THREE.BoxGeometry(.055,gh+.12,.11),M.trim);fin.position.set(mx+Math.cos(glass.rotation.y)*gw*k,(y0+y1)/2,-my-Math.sin(glass.rotation.y)*gw*k);fin.rotation.y=glass.rotation.y;scene.add(fin)}}}
+const house=byId.house;scene.add(slab(house.polygon,0,3.05,M.wall,true));scene.add(slab(house.polygon,3.05,.24,M.concrete));scene.add(slab(house.polygon,3.29,2.91,M.wallDark,true));scene.add(slab(house.polygon,6.2,.22,M.roof));
+for(let i=0;i<house.polygon.length;i++){const a=house.polygon[i],b=house.polygon[(i+1)%house.polygon.length];const w=wall(a,b,6.42,.78,.18,M.wall);if(w)scene.add(w)}
+addFacade(house.polygon,1.0,2.42);addFacade(house.polygon,4.15,5.58);
+// Architectural wood feature near front centroid
+{const c=centroid(house.polygon);const f=new THREE.Mesh(new THREE.BoxGeometry(2.2,4.7,.22),M.wood);f.position.set(c[0]+2.25,3.3,-c[1]-2.25);f.rotation.y=.18;f.castShadow=true;scene.add(f)}
+
+// Green area
+if(byId.green_area){const g=slab(byId.green_area.polygon,.025,.12,M.grass);g.receiveShadow=true;scene.add(g)}
+// Wash canopy
+if(byId.wash_area){const e=byId.wash_area;scene.add(slab(e.polygon,.03,.07,M.water));for(const p of e.polygon){const c=new THREE.Mesh(new THREE.CylinderGeometry(.13,.15,e.height,10),M.steel);c.position.set(p[0],e.height/2,-p[1]);c.castShadow=true;scene.add(c)}const r=slab(e.polygon,e.height,.25,M.roof);scene.add(r)}
+// Waiting low wall
+if(byId.waiting_room){scene.add(slab(byId.waiting_room.polygon,0,byId.waiting_room.height,M.wall,true))}
+
+// Parking stalls and wheel stops
+const stalls=MODEL.elements.filter(e=>e.type==='parking_stall');
+for(const e of stalls){const s=slab(e.polygon,.01,.055,M.asphalt);s.castShadow=false;scene.add(s);for(let i=0;i<e.polygon.length;i++){const w=wall(e.polygon[i],e.polygon[(i+1)%e.polygon.length],.068,.012,.08,M.line);if(w){w.castShadow=false;scene.add(w)}}}
+function car(el,i){const p=el.polygon,c=centroid(p),p0=p[0],p1=p[1],p2=p[2],l1=Math.hypot(p1[0]-p0[0],p1[1]-p0[1]),l2=Math.hypot(p2[0]-p1[0],p2[1]-p1[1]),ang=l1>=l2?Math.atan2(p1[1]-p0[1],p1[0]-p0[0]):Math.atan2(p2[1]-p1[1],p2[0]-p1[0]);const pickup=el.label.startsWith('CAMIONETA'),L=pickup?5.05:4.35,W=pickup?1.88:1.78;const g=new THREE.Group(),paint=[M.carWhite,M.carDark,M.carBronze][i%3];const body=new THREE.Mesh(new THREE.BoxGeometry(L,.62,W),paint);body.position.y=.48;body.castShadow=true;g.add(body);const cab=new THREE.Mesh(new THREE.BoxGeometry(L*.48,.62,W*.86),M.glass);cab.position.set(pickup?-.45:0,.92,0);cab.castShadow=true;g.add(cab);for(const x of [-L*.31,L*.31])for(const z of [-W*.48,W*.48]){const wh=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.20,18),M.tire);wh.rotation.x=Math.PI/2;wh.position.set(x,.30,z);wh.castShadow=true;g.add(wh)}g.position.set(c[0],.09,-c[1]);g.rotation.y=-ang;scene.add(g)}stalls.forEach(car);
+
+// Vegetation: deterministic radial trees around green polygon
+let seed=1907;const rnd=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
+function pointInside(pt,poly){let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const [xi,yi]=poly[i],[xj,yj]=poly[j];if((yi>pt[1])!==(yj>pt[1])&&pt[0]<(xj-xi)*(pt[1]-yi)/(yj-yi)+xi)c=!c}return c}
+function tree(x,z,s=1){const g=new THREE.Group();const tr=new THREE.Mesh(new THREE.CylinderGeometry(.09*s,.15*s,2.0*s,8),M.trunk);tr.position.y=1*s;tr.castShadow=true;g.add(tr);for(let k=0;k<3;k++){const crown=new THREE.Mesh(new THREE.IcosahedronGeometry((.75+.15*k)*s,1),M.leaves);crown.scale.set(1,.75,1);crown.position.set((k-1)*.28*s,(2.0+.45*k)*s,(rnd()-.5)*.25*s);crown.castShadow=true;g.add(crown)}g.position.set(x,0,z);scene.add(g)}
+if(byId.green_area){const p=byId.green_area.polygon,x0=Math.min(...p.map(v=>v[0])),x1=Math.max(...p.map(v=>v[0])),y0=Math.min(...p.map(v=>v[1])),y1=Math.max(...p.map(v=>v[1]));let n=0,guard=0;while(n<12&&guard++<700){const x=x0+rnd()*(x1-x0),y=y0+rnd()*(y1-y0);if(pointInside([x,y],p)&&!pointInside([x,y],house.polygon)){tree(x,-y,.8+rnd()*.45);n++}}}
+
+// Small bollard lights for depth at night/golden hour
+for(let i=0;i<6;i++){const x=-7+i*2.7,z=9+i*.75;const post=new THREE.Mesh(new THREE.CylinderGeometry(.05,.06,.65,10),M.steel);post.position.set(x,.325,z);scene.add(post);const bulb=new THREE.Mesh(new THREE.SphereGeometry(.09,12,8),new THREE.MeshBasicMaterial({color:0xffd89b}));bulb.position.set(x,.68,z);scene.add(bulb)}
+
+const VIEWS={hero:{p:[29,19,34],t:[0,2.6,0],f:34},street:{p:[16,3.7,31],t:[3.5,3,-2],f:47},aerial:{p:[25,48,32],t:[0,0,0],f:36}};
+function view(k){const v=VIEWS[k];camera.position.set(...v.p);camera.fov=v.f;camera.updateProjectionMatrix();controls.target.set(...v.t);controls.update()}
+view('hero');
+function setLight(golden=false){if(golden){sun.position.set(-31,20,42);sun.color.set(0xffb86b);sun.intensity=3.8;hemi.intensity=.58;scene.background.set(0xa8b7c5);renderer.toneMappingExposure=1.12}else{sun.position.set(-28,52,35);sun.color.set(0xfff0d5);sun.intensity=4.1;hemi.intensity=1.05;scene.background.set(0xc8d7e2);renderer.toneMappingExposure=1.08}sun.target.position.set(0,0,0)}setLight(false);
+
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('on',x===b));view(b.dataset.view)});
+let gold=false;document.getElementById('golden').onclick=e=>{gold=!gold;e.currentTarget.classList.toggle('on',gold);setLight(gold)};
+document.getElementById('capture').onclick=()=>{renderer.render(scene,camera);const a=document.createElement('a');a.download='casa-alex-referencia-realista.png';a.href=renderer.domElement.toDataURL('image/png');a.click()};
+function resize(){const w=host.clientWidth,h=host.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
+loading.remove();
+(function tick(){requestAnimationFrame(tick);controls.update();renderer.render(scene,camera)})();
+</script>
+</body>
+</html>
