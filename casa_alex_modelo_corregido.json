@@ -1,0 +1,698 @@
+{
+  "project": {
+    "name": "CASA ALEX",
+    "source": "CASA_ALEX_1-Model.pdf (extracción vectorial CAD)",
+    "units": "m",
+    "scale_pt_per_m": 14.839,
+    "status": "planta_exacta_alturas_supuestas",
+    "notes": [
+      "La PLANTA es exacta: coordenadas extraídas de las polilíneas del PDF y verificadas contra las áreas y perímetros rotulados (error < 0.3%).",
+      "Las ALTURAS y el tipo de cada volumen NO están en el croquis: son supuestos editables.",
+      "Origen (0,0) = centro del rectángulo envolvente del conjunto. +Y = arriba del plano."
+    ]
+  },
+  "elements": [
+    {
+      "id": "house",
+      "label": "CASA 2 PISOS",
+      "polygon": [
+        [
+          7.86,
+          16.909
+        ],
+        [
+          1.666,
+          16.198
+        ],
+        [
+          1.65,
+          11.16
+        ],
+        [
+          5.03,
+          11.548
+        ],
+        [
+          6.728,
+          4.529
+        ],
+        [
+          10.497,
+          5.968
+        ]
+      ],
+      "area_m2": 61.11,
+      "perimeter_m": 37.19,
+      "area_rotulada_m2": 61.04,
+      "perimetro_rotulado_m": 37.18,
+      "error_area_pct": 0.11,
+      "type": "building",
+      "height": 6.2,
+      "floors": 2,
+      "floor_height": 3.1,
+      "roof": "plana"
+    },
+    {
+      "id": "green_area",
+      "label": "AREA VERDE",
+      "polygon": [
+        [
+          5.03,
+          11.548
+        ],
+        [
+          1.65,
+          11.16
+        ],
+        [
+          1.666,
+          16.198
+        ],
+        [
+          0.631,
+          16.077
+        ],
+        [
+          -1.617,
+          8.483
+        ],
+        [
+          -1.585,
+          8.467
+        ],
+        [
+          4.035,
+          6.081
+        ],
+        [
+          4.69,
+          2.458
+        ],
+        [
+          10.78,
+          4.795
+        ],
+        [
+          10.497,
+          5.968
+        ],
+        [
+          6.728,
+          4.529
+        ]
+      ],
+      "area_m2": 51.39,
+      "perimeter_m": 46.21,
+      "area_rotulada_m2": 51.39,
+      "perimetro_rotulado_m": 46.22,
+      "error_area_pct": 0.01,
+      "type": "ground",
+      "height": 0.12
+    },
+    {
+      "id": "parking_camioneta_5",
+      "label": "CAMIONETA 5",
+      "polygon": [
+        [
+          -10.772,
+          -4.561
+        ],
+        [
+          -10.375,
+          -6.421
+        ],
+        [
+          -5.095,
+          -5.305
+        ],
+        [
+          -5.483,
+          -3.445
+        ]
+      ],
+      "area_m2": 10.27,
+      "perimeter_m": 14.6,
+      "area_rotulada_m2": 10.26,
+      "perimetro_rotulado_m": 14.6,
+      "error_area_pct": 0.07,
+      "type": "parking_stall",
+      "height": 0.1
+    },
+    {
+      "id": "parking_camioneta_4",
+      "label": "CAMIONETA 4",
+      "polygon": [
+        [
+          -10.78,
+          -7.779
+        ],
+        [
+          -10.392,
+          -9.639
+        ],
+        [
+          -5.103,
+          -8.515
+        ],
+        [
+          -5.499,
+          -6.664
+        ]
+      ],
+      "area_m2": 10.25,
+      "perimeter_m": 14.6,
+      "area_rotulada_m2": 10.26,
+      "perimetro_rotulado_m": 14.6,
+      "error_area_pct": 0.14,
+      "type": "parking_stall",
+      "height": 0.1
+    },
+    {
+      "id": "parking_auto",
+      "label": "AUTO",
+      "polygon": [
+        [
+          -1.456,
+          -3.016
+        ],
+        [
+          -0.671,
+          -4.642
+        ],
+        [
+          3.372,
+          -2.661
+        ],
+        [
+          2.588,
+          -1.043
+        ]
+      ],
+      "area_m2": 8.11,
+      "perimeter_m": 12.61,
+      "area_rotulada_m2": 8.1,
+      "perimetro_rotulado_m": 12.6,
+      "error_area_pct": 0.12,
+      "type": "parking_stall",
+      "height": 0.1
+    },
+    {
+      "id": "parking_camioneta",
+      "label": "CAMIONETA",
+      "polygon": [
+        [
+          -1.108,
+          -6.033
+        ],
+        [
+          -0.259,
+          -7.731
+        ],
+        [
+          4.569,
+          -5.305
+        ],
+        [
+          3.712,
+          -3.607
+        ]
+      ],
+      "area_m2": 10.26,
+      "perimeter_m": 14.6,
+      "area_rotulada_m2": 10.26,
+      "perimetro_rotulado_m": 14.6,
+      "error_area_pct": 0.01,
+      "type": "parking_stall",
+      "height": 0.1
+    },
+    {
+      "id": "parking_camioneta_2",
+      "label": "CAMIONETA 2",
+      "polygon": [
+        [
+          0.081,
+          -8.685
+        ],
+        [
+          0.938,
+          -10.383
+        ],
+        [
+          5.758,
+          -7.949
+        ],
+        [
+          4.909,
+          -6.259
+        ]
+      ],
+      "area_m2": 10.24,
+      "perimeter_m": 14.6,
+      "area_rotulada_m2": 10.26,
+      "perimetro_rotulado_m": 14.6,
+      "error_area_pct": 0.15,
+      "type": "parking_stall",
+      "height": 0.1
+    },
+    {
+      "id": "parking_camioneta_3",
+      "label": "CAMIONETA 3",
+      "polygon": [
+        [
+          -1.682,
+          -11.2
+        ],
+        [
+          -3.405,
+          -11.993
+        ],
+        [
+          -1.164,
+          -16.909
+        ],
+        [
+          0.566,
+          -16.117
+        ]
+      ],
+      "area_m2": 10.27,
+      "perimeter_m": 14.61,
+      "area_rotulada_m2": 10.26,
+      "perimetro_rotulado_m": 14.6,
+      "error_area_pct": 0.07,
+      "type": "parking_stall",
+      "height": 0.1
+    },
+    {
+      "id": "parking_auto_2",
+      "label": "AUTO 2",
+      "polygon": [
+        [
+          0.995,
+          -10.909
+        ],
+        [
+          -0.647,
+          -11.653
+        ],
+        [
+          1.229,
+          -15.745
+        ],
+        [
+          2.863,
+          -15.001
+        ]
+      ],
+      "area_m2": 8.1,
+      "perimeter_m": 12.6,
+      "area_rotulada_m2": 8.1,
+      "perimetro_rotulado_m": 12.6,
+      "error_area_pct": 0.06,
+      "type": "parking_stall",
+      "height": 0.1
+    },
+    {
+      "id": "waiting_room",
+      "label": "SALA DE ESPERA",
+      "polygon": [
+        [
+          7.222,
+          -10.02
+        ],
+        [
+          6.615,
+          -8.645
+        ],
+        [
+          6.162,
+          -8.871
+        ],
+        [
+          6.566,
+          -9.785
+        ],
+        [
+          3.437,
+          -11.354
+        ],
+        [
+          3.639,
+          -11.815
+        ]
+      ],
+      "area_m2": 2.52,
+      "perimeter_m": 11.02,
+      "area_rotulada_m2": 2.51,
+      "perimetro_rotulado_m": 11.03,
+      "error_area_pct": 0.47,
+      "type": "low_wall",
+      "height": 0.95,
+      "nota": "En el CAD es una franja en \"L\" de 0.50 m de ancho (2.51 m²). Eso es un parapeto o jardinera que delimita la sala de espera, no un ambiente cerrado: el plano no trae el contorno del recinto. Si la sala es un ambiente techado, falta dibujarla."
+    },
+    {
+      "id": "wash_area",
+      "label": "AREA DE LAVADO",
+      "polygon": [
+        [
+          4.035,
+          6.081
+        ],
+        [
+          -1.585,
+          8.467
+        ],
+        [
+          -4.771,
+          1.173
+        ],
+        [
+          0.922,
+          -1.286
+        ],
+        [
+          2.094,
+          1.496
+        ],
+        [
+          4.69,
+          2.458
+        ]
+      ],
+      "area_m2": 54.1,
+      "perimeter_m": 29.74,
+      "area_rotulada_m2": 54.25,
+      "perimetro_rotulado_m": 29.77,
+      "error_area_pct": 0.28,
+      "type": "canopy",
+      "height": 4.2,
+      "column_h": 4.2
+    }
+  ],
+  "context": {
+    "via": [
+      [
+        [
+          6.898,
+          3.259
+        ],
+        [
+          10.78,
+          4.795
+        ],
+        [
+          10.505,
+          5.936
+        ],
+        [
+          7.86,
+          16.909
+        ],
+        [
+          2.167,
+          16.254
+        ]
+      ],
+      [
+        [
+          4.068,
+          -14.621
+        ],
+        [
+          5.467,
+          -14.621
+        ],
+        [
+          5.451,
+          -16.077
+        ],
+        [
+          4.051,
+          -16.077
+        ]
+      ],
+      [
+        [
+          4.246,
+          -13.19
+        ],
+        [
+          3.437,
+          -13.594
+        ],
+        [
+          2.143,
+          -10.885
+        ],
+        [
+          3.024,
+          -10.44
+        ],
+        [
+          4.658,
+          -14.103
+        ]
+      ],
+      [
+        [
+          3.623,
+          -13.974
+        ],
+        [
+          4.246,
+          -13.19
+        ],
+        [
+          3.865,
+          -14.5
+        ],
+        [
+          2.143,
+          -10.885
+        ],
+        [
+          3.024,
+          -10.44
+        ]
+      ],
+      [
+        [
+          6.615,
+          -8.645
+        ],
+        [
+          8.24,
+          -12.308
+        ],
+        [
+          3.421,
+          -14.718
+        ]
+      ],
+      [
+        [
+          2.111,
+          1.472
+        ],
+        [
+          6.898,
+          3.259
+        ]
+      ],
+      [
+        [
+          2.111,
+          1.472
+        ],
+        [
+          10.78,
+          4.795
+        ]
+      ],
+      [
+        [
+          7.222,
+          -10.02
+        ],
+        [
+          3.631,
+          -11.823
+        ]
+      ],
+      [
+        [
+          4.035,
+          6.081
+        ],
+        [
+          4.69,
+          2.434
+        ]
+      ],
+      [
+        [
+          10.497,
+          5.968
+        ],
+        [
+          7.86,
+          16.909
+        ]
+      ]
+    ],
+    "limite_propiedad": [
+      [
+        [
+          4.035,
+          6.081
+        ],
+        [
+          4.69,
+          2.458
+        ],
+        [
+          2.094,
+          1.496
+        ],
+        [
+          0.922,
+          -1.286
+        ]
+      ],
+      [
+        [
+          4.06,
+          6.073
+        ],
+        [
+          -1.585,
+          8.467
+        ],
+        [
+          -1.617,
+          8.483
+        ]
+      ],
+      [
+        [
+          0.922,
+          -1.286
+        ],
+        [
+          -4.771,
+          1.173
+        ]
+      ],
+      [
+        [
+          -1.617,
+          8.483
+        ],
+        [
+          -4.771,
+          1.173
+        ]
+      ],
+      [
+        [
+          -4.771,
+          1.173
+        ],
+        [
+          0.922,
+          -1.286
+        ]
+      ],
+      [
+        [
+          2.094,
+          1.496
+        ],
+        [
+          6.615,
+          -8.645
+        ]
+      ],
+      [
+        [
+          -1.496,
+          -17.184
+        ],
+        [
+          8.24,
+          -12.308
+        ]
+      ],
+      [
+        [
+          0.299,
+          -20.767
+        ],
+        [
+          10.028,
+          -15.882
+        ]
+      ],
+      [
+        [
+          -5.362,
+          -9.081
+        ],
+        [
+          -7.796,
+          -10.165
+        ],
+        [
+          -9.89,
+          -11.119
+        ]
+      ],
+      [
+        [
+          -9.89,
+          -11.119
+        ],
+        [
+          -5.928,
+          -19.408
+        ],
+        [
+          -1.496,
+          -17.184
+        ]
+      ],
+      [
+        [
+          0.631,
+          16.077
+        ],
+        [
+          -1.617,
+          8.483
+        ],
+        [
+          -4.771,
+          1.173
+        ],
+        [
+          -6.097,
+          -2.014
+        ]
+      ],
+      [
+        [
+          -5.362,
+          -9.081
+        ],
+        [
+          -1.496,
+          -17.184
+        ]
+      ]
+    ]
+  },
+  "bbox_m": {
+    "ancho": 21.56,
+    "largo": 33.82
+  }
+}
